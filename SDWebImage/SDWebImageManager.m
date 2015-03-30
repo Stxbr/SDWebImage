@@ -136,7 +136,7 @@
     if (!url || (!(options & SDWebImageRetryFailed) && isFailedUrl)) {
         dispatch_main_sync_safe(^{
             NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorFileDoesNotExist userInfo:nil];
-            completedBlock(nil, error, SDImageCacheTypeNone, YES, url);
+            completedBlock(nil, nil, error, SDImageCacheTypeNone, YES, url);
         });
         return operation;
     }
@@ -160,7 +160,7 @@
                 dispatch_main_sync_safe(^{
                     // If image was found in the cache bug SDWebImageRefreshCached is provided, notify about the cached image
                     // AND try to re-download it in order to let a chance to NSURLCache to refresh it from server.
-                    completedBlock(image, nil, cacheType, YES, url);
+                    completedBlock(image, nil, nil, cacheType, YES, url);
                 });
             }
 
@@ -188,7 +188,7 @@
                 else if (error) {
                     dispatch_main_sync_safe(^{
                         if (!weakOperation.isCancelled) {
-                            completedBlock(nil, error, SDImageCacheTypeNone, finished, url);
+                            completedBlock(nil, nil, error, SDImageCacheTypeNone, finished, url);
                         }
                     });
 
@@ -216,7 +216,7 @@
 
                             dispatch_main_sync_safe(^{
                                 if (!weakOperation.isCancelled) {
-                                    completedBlock(transformedImage, nil, SDImageCacheTypeNone, finished, url);
+                                    completedBlock(transformedImage, data, nil, SDImageCacheTypeNone, finished, url);
                                 }
                             });
                         });
@@ -228,7 +228,7 @@
 
                         dispatch_main_sync_safe(^{
                             if (!weakOperation.isCancelled) {
-                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                                completedBlock(downloadedImage, data, nil, SDImageCacheTypeNone, finished, url);
                             }
                         });
                     }
@@ -251,7 +251,7 @@
         else if (image) {
             dispatch_main_sync_safe(^{
                 if (!weakOperation.isCancelled) {
-                    completedBlock(image, nil, cacheType, YES, url);
+                    completedBlock(image, nil, nil, cacheType, YES, url);
                 }
             });
             @synchronized (self.runningOperations) {
@@ -262,7 +262,7 @@
             // Image not in cache and download disallowed by delegate
             dispatch_main_sync_safe(^{
                 if (!weakOperation.isCancelled) {
-                    completedBlock(nil, nil, SDImageCacheTypeNone, YES, url);
+                    completedBlock(nil, nil, nil, SDImageCacheTypeNone, YES, url);
                 }
             });
             @synchronized (self.runningOperations) {
@@ -336,7 +336,7 @@
     return [self downloadImageWithURL:url
                               options:options
                              progress:progressBlock
-                            completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                            completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
                                 if (completedBlock) {
                                     completedBlock(image, error, cacheType, finished);
                                 }
